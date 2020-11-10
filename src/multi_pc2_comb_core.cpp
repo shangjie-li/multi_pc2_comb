@@ -6,16 +6,16 @@ PclTestCore::PclTestCore(ros::NodeHandle &nh){
     nh.param<std::string>("pub_topic_name", pub_topic_name_, "/lslidar_combined");
     nh.param<std::string>("frame_name", frame_name_, "/ls_comb");
     
-    nh.param<float>("rotation_x_1", rotation_x_1_, 0);
-    nh.param<float>("rotation_y_1", rotation_y_1_, 0);
-    nh.param<float>("rotation_z_1", rotation_z_1_, 0);
+    nh.param<float>("alpha_1", alpha_1_, 0);
+    nh.param<float>("beta_1", beta_1_, 0);
+    nh.param<float>("gamma_1", gamma_1_, 0);
     nh.param<float>("offset_x_1", offset_x_1_, 0);
     nh.param<float>("offset_y_1", offset_y_1_, 0);
     nh.param<float>("offset_z_1", offset_z_1_, 0);
     
-    nh.param<float>("rotation_x_2", rotation_x_2_, 0);
-    nh.param<float>("rotation_y_2", rotation_y_2_, 0);
-    nh.param<float>("rotation_z_2", rotation_z_2_, 0);
+    nh.param<float>("alpha_2", alpha_2_, 0);
+    nh.param<float>("beta_2", beta_2_, 0);
+    nh.param<float>("gamma_2", gamma_2_, 0);
     nh.param<float>("offset_x_2", offset_x_2_, 0);
     nh.param<float>("offset_y_2", offset_y_2_, 0);
     nh.param<float>("offset_z_2", offset_z_2_, 0);
@@ -42,7 +42,23 @@ void PclTestCore::Spin(){
 }
 
 //坐标转换函数
-void PclTestCore::transform(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud, float rx, float ry, float rz, float ox, float oy, float oz){
+void PclTestCore::transform(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud, float a, float b, float g, float ox, float oy, float oz){
+    a = a * PI / 180;
+    b = b * PI / 180;
+    g = g * PI / 180;
+        
+    float t11 = cos(a) * cos(b);
+    float t12 = cos(a) * sin(b) * sin(g) - sin(a) * cos(g);
+    float t13 = cos(a) * sin(b) * cos(g) + sin(a) * sin(g);
+        
+    float t21 = sin(a) * cos(b);
+    float t22 = sin(a) * sin(b) * sin(g) + cos(a) * cos(g);
+    float t23 = sin(a) * sin(b) * cos(g) - cos(a) * sin(g);
+        
+    float t31 = - sin(b);
+    float t32 = cos(b) * sin(g);
+    float t33 = cos(b) * cos(g);
+    
     *out_cloud = *in_cloud;
 //pragma omp for语法是OpenMP的并行化语法，即希望通过OpenMP并行化执行这条语句后的for循环，从而起到加速效果
 #pragma omp for
@@ -52,21 +68,9 @@ void PclTestCore::transform(const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud, 
         float y = in_cloud->points[i].y;
         float z = in_cloud->points[i].z;
         
-        float a1 = 1;
-        float b1 = 0;
-        float c1 = 0;
-        
-        float a2 = 0;
-        float b2 = 1;
-        float c2 = 0;
-        
-        float a3 = 0;
-        float b3 = 0;
-        float c3 = 1;
-        
-        out_cloud->points[i].x = a1 * x + b1 * y + c1 * z + ox;
-        out_cloud->points[i].y = a2 * x + b2 * y + c2 * z + oy;
-        out_cloud->points[i].z = a3 * x + b3 * y + c3 * z + ox;
+        out_cloud->points[i].x = t11 * x + t12 * y + t13 * z + ox;
+        out_cloud->points[i].y = t21 * x + t22 * y + t23 * z + oy;
+        out_cloud->points[i].z = t31 * x + t32 * y + t33 * z + ox;
     }
 }
 
@@ -94,8 +98,8 @@ void PclTestCore::point_cb(const sensor_msgs::PointCloud2ConstPtr& in_cloud_ptr_
     }
     
     //坐标转换函数
-    transform(current_pc_ptr_1, transformed_pc_ptr_1, rotation_x_1_, rotation_y_1_, rotation_z_1_, offset_x_1_, offset_y_1_, offset_z_1_);
-    transform(current_pc_ptr_2, transformed_pc_ptr_2, rotation_x_2_, rotation_y_2_, rotation_z_2_, offset_x_2_, offset_y_2_, offset_z_2_);
+    transform(current_pc_ptr_1, transformed_pc_ptr_1, alpha_1_, beta_1_, gamma_1_, offset_x_1_, offset_y_1_, offset_z_1_);
+    transform(current_pc_ptr_2, transformed_pc_ptr_2, alpha_2_, beta_2_, gamma_2_, offset_x_2_, offset_y_2_, offset_z_2_);
     
     //点云拼接函数
     combine(transformed_pc_ptr_1, transformed_pc_ptr_2, output_pc_ptr);

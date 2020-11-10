@@ -26,16 +26,16 @@ class PclTestCore
     std::string pub_topic_name_;
     std::string frame_name_;
     
-    float rotation_x_1_;
-    float rotation_y_1_;
-    float rotation_z_1_;
+    float alpha_1_;
+    float beta_1_;
+    float gamma_1_;
     float offset_x_1_;
     float offset_y_1_;
     float offset_z_1_;
     
-    float rotation_x_2_;
-    float rotation_y_2_;
-    float rotation_z_2_;
+    float alpha_2_;
+    float beta_2_;
+    float gamma_2_;
     float offset_x_2_;
     float offset_y_2_;
     float offset_z_2_;

@@ -9,19 +9,19 @@
         <param name="pub_topic_name" value="/lslidar_combined"/>
         <param name="frame_name" value="ls_comb"/>
         
-        <param name="rotation_x_1" value="0"/>
-        <param name="rotation_y_1" value="0"/>
-        <param name="rotation_z_1" value="0"/>
-        <param name="offset_x_1" value="5"/>
-        <param name="offset_y_1" value="0"/>
-        <param name="offset_z_1" value="0"/>
+        <param name="alpha_1" value="-90"/>
+        <param name="beta_1" value="-45"/>
+        <param name="gamma_1" value="0"/>
+        <param name="offset_x_1" value="0"/>
+        <param name="offset_y_1" value="0.45"/>
+        <param name="offset_z_1" value="-0.2"/>
         
-        <param name="rotation_x_2" value="0"/>
-        <param name="rotation_y_2" value="0"/>
-        <param name="rotation_z_2" value="0"/>
+        <param name="alpha_2" value="90"/>
+        <param name="beta_2" value="-45"/>
+        <param name="gamma_2" value="0"/>
         <param name="offset_x_2" value="0"/>
-        <param name="offset_y_2" value="0"/>
-        <param name="offset_z_2" value="0"/>
+        <param name="offset_y_2" value="-0.45"/>
+        <param name="offset_z_2" value="-0.2"/>
         
         <param name="show_points_size" value="true"/>
         
