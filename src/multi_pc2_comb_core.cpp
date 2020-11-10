@@ -3,7 +3,8 @@
 PclTestCore::PclTestCore(ros::NodeHandle &nh){
     nh.param<std::string>("sub_topic_name_1", sub_topic_name_1_, "/ls_left/lslidar_point_cloud");
     nh.param<std::string>("sub_topic_name_2", sub_topic_name_2_, "/ls_right/lslidar_point_cloud");
-    nh.param<std::string>("pub_topic_name", pub_topic_name_, "/lslidar_point_cloud_combined");
+    nh.param<std::string>("pub_topic_name", pub_topic_name_, "/lslidar_combined");
+    nh.param<std::string>("frame_name", frame_name_, "/ls_comb");
     
     nh.param<float>("rotation_x_1", rotation_x_1_, 0);
     nh.param<float>("rotation_y_1", rotation_y_1_, 0);
@@ -21,11 +22,14 @@ PclTestCore::PclTestCore(ros::NodeHandle &nh){
     
     nh.param<bool>("show_points_size", show_points_size_, false);
     
-    message_filters::Subscriber<sensor_msgs::PointCloud2> sub_point_cloud_1_(nh, sub_topic_name_1_, 1);
-    message_filters::Subscriber<sensor_msgs::PointCloud2> sub_point_cloud_2_(nh, sub_topic_name_2_, 1);
+    message_filters::Subscriber<sensor_msgs::PointCloud2> sub_point_cloud_1_(nh, sub_topic_name_1_, 10);
+    message_filters::Subscriber<sensor_msgs::PointCloud2> sub_point_cloud_2_(nh, sub_topic_name_2_, 10);
     pub_point_cloud_ = nh.advertise<sensor_msgs::PointCloud2>(pub_topic_name_, 1);
     
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::PointCloud2, sensor_msgs::PointCloud2, sensor_msgs::PointCloud2> MySyncPolicy;
+    std::cout<<"successfully subscribed:"<<sub_topic_name_1_<<std::endl;
+    std::cout<<"successfully subscribed:"<<sub_topic_name_2_<<std::endl;
+    
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::PointCloud2, sensor_msgs::PointCloud2> MySyncPolicy;
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), sub_point_cloud_1_, sub_point_cloud_2_);
     sync.registerCallback(boost::bind(&PclTestCore::point_cb, this, _1, _2));
     
@@ -85,8 +89,8 @@ void PclTestCore::point_cb(const sensor_msgs::PointCloud2ConstPtr& in_cloud_ptr_
     
     if (show_points_size_)
     {
-        std::cout<<"size of"<<sub_topic_name_1_<<"is"<<current_pc_ptr_1->points.size()<<std::endl;
-        std::cout<<"size of"<<sub_topic_name_2_<<"is"<<current_pc_ptr_2->points.size()<<std::endl;
+        std::cout<<"size of "<<sub_topic_name_1_<<" is "<<current_pc_ptr_1->points.size()<<std::endl;
+        std::cout<<"size of "<<sub_topic_name_2_<<" is "<<current_pc_ptr_2->points.size()<<std::endl;
     }
     
     //坐标转换函数
@@ -98,13 +102,15 @@ void PclTestCore::point_cb(const sensor_msgs::PointCloud2ConstPtr& in_cloud_ptr_
     
     if (show_points_size_)
     {
-        std::cout<<"size of"<<pub_topic_name_<<"is"<<output_pc_ptr->points.size()<<std::endl;
+        std::cout<<"size of "<<pub_topic_name_<<" is "<<output_pc_ptr->points.size()<<std::endl;
+        std::cout<<std::endl;
     }
     
     sensor_msgs::PointCloud2 out_cloud_ptr;
     pcl::toROSMsg(*output_pc_ptr, out_cloud_ptr);
     
     out_cloud_ptr.header = in_cloud_ptr_1->header;
+    out_cloud_ptr.header.frame_id = frame_name_;
     pub_point_cloud_.publish(out_cloud_ptr);
 }
 

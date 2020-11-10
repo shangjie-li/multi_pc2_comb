@@ -24,6 +24,7 @@ class PclTestCore
     std::string sub_topic_name_1_;
     std::string sub_topic_name_2_;
     std::string pub_topic_name_;
+    std::string frame_name_;
     
     float rotation_x_1_;
     float rotation_y_1_;

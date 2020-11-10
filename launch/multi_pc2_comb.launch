@@ -6,12 +6,13 @@
         
         <param name="sub_topic_name_1" value="/ls_left/lslidar_point_cloud"/>
         <param name="sub_topic_name_2" value="/ls_right/lslidar_point_cloud"/>
-        <param name="pub_topic_name" value="/lslidar_point_cloud_combined"/>
+        <param name="pub_topic_name" value="/lslidar_combined"/>
+        <param name="frame_name" value="ls_comb"/>
         
         <param name="rotation_x_1" value="0"/>
         <param name="rotation_y_1" value="0"/>
         <param name="rotation_z_1" value="0"/>
-        <param name="offset_x_1" value="0"/>
+        <param name="offset_x_1" value="5"/>
         <param name="offset_y_1" value="0"/>
         <param name="offset_z_1" value="0"/>
         
